@@ -18,12 +18,22 @@ class _ReservationPageState extends State<ReservationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SlidingSwitch(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            color: dBlue,
+            child: Text(
+              "Vos Reservations",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.nunito(color: Colors.white, fontSize: 18),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            child: SlidingSwitch(
               value: false,
               width: 250,
               onChanged: (bool value) {
@@ -44,10 +54,10 @@ class _ReservationPageState extends State<ReservationPage> {
               buttonColor: const Color(0xfff7f5f7),
               inactiveColor: dGray,
             ),
-            const SizedBox(height: 10),
-            screens[currentScreen]
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+          screens[currentScreen]
+        ],
       ),
     );
   }
@@ -96,6 +106,7 @@ class _InProgressCarState extends State<InProgressCar> {
 
   Widget buildList() => ListView.builder(
         itemCount: cars.length,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         itemBuilder: (context, index) {
           final car = cars[index];
           return Container(
@@ -218,6 +229,7 @@ class _HistoryCarState extends State<HistoryCar> {
 
   Widget buildList() => ListView.builder(
         itemCount: cars.length,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         itemBuilder: (context, index) {
           final car = cars[index];
           return Container(

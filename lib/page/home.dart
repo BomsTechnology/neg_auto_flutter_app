@@ -20,7 +20,7 @@ class _HomeViewState extends State<HomeView> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
-          children: const [
+          children: [
             SliderSetion(),
             SizedBox(height: 10),
             CategorySection(),
@@ -284,6 +284,7 @@ class _BestCarState extends State<BestCar> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 80),
       padding: const EdgeInsets.symmetric(
         horizontal: 15,
       ),
