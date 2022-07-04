@@ -1,15 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:neg/home_page.dart';
 import 'package:neg/login_page.dart';
 import 'package:neg/register_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 const dBlue = Color(0xFF1e90ff);
 const dGray = Color(0xFF636e72);
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
@@ -37,13 +43,22 @@ class WelcomePage extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: dBlue,
-      body: SingleChildScrollView(
-        child: Column(children: [
-          const TitleSection(),
-          const ImageSection(),
-          const ButtonSection(),
-        ]),
-      ),
+      body: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return HomePage();
+            } else {
+              return SingleChildScrollView(
+                child: Column(children: [
+                  const TitleSection(),
+                  const ImageSection(),
+                  const ButtonSection(),
+                ]),
+              );
+            }
+            ;
+          }),
     );
   }
 }

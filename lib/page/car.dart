@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:neg/main.dart';
 import 'package:neg/detail_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CarPage extends StatefulWidget {
   const CarPage({Key? key}) : super(key: key);
@@ -61,119 +62,86 @@ class CarSection extends StatefulWidget {
 }
 
 class _CarSectionState extends State<CarSection> {
-  final List cars = [
-    {
-      "name": "Toyota Tacoma",
-      "url": "assets/images/splash/splash1.jpg",
-    },
-    {
-      "name": "Mercedes Benz",
-      "url": "assets/images/splash/splash2.jpg",
-    },
-    {
-      "name": "BMW Xtread",
-      "url": "assets/images/voitures/voiture3.png",
-    },
-    {
-      "name": "Toyota Fortuner",
-      "url": "assets/images/voitures/voiture4.jpg",
-    },
-    {
-      "name": "Toyota Tacoma",
-      "url": "assets/images/voitures/voiture1.jpg",
-    },
-    {
-      "name": "Mercedes Benz",
-      "url": "assets/images/voitures/voiture2.jpg",
-    },
-    {
-      "name": "BMW Xtread",
-      "url": "assets/images/voitures/voiture3.png",
-    },
-    {
-      "name": "Toyota Fortuner",
-      "url": "assets/images/voitures/voiture4.jpg",
-    },
-    {
-      "name": "Toyota Tacoma",
-      "url": "assets/images/voitures/voiture1.jpg",
-    },
-    {
-      "name": "Mercedes Benz",
-      "url": "assets/images/voitures/voiture2.jpg",
-    },
-    {
-      "name": "BMW Xtread",
-      "url": "assets/images/voitures/voiture3.png",
-    },
-    {
-      "name": "Toyota Fortuner",
-      "url": "assets/images/voitures/voiture4.jpg",
-    },
-  ];
+  final Stream<QuerySnapshot> _carsStream =
+      FirebaseFirestore.instance.collection('cars').snapshots();
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: buildGrid(),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: _carsStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+                child: Text('Something went wrong',
+                    style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w700, fontSize: 18)));
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: dBlue),
+            );
+          }
+
+          return GridView(
+              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                Map<String, dynamic> data =
+                    document.data()! as Map<String, dynamic>;
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.black12),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailPage(),
+                        ),
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20)),
+                            child: Image.network(
+                              data['image'],
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          data['name'],
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: GoogleFonts.nunito(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 70),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 8,
+              ));
+        },
+      ),
     );
   }
-
-  Widget buildGrid() => GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 8,
-        ),
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 70),
-        itemCount: cars.length,
-        itemBuilder: (context, index) {
-          final item = cars[index];
-          return buildCard(item);
-        },
-      );
-  Widget buildCard(car) => Container(
-        decoration: BoxDecoration(
-          border: Border.all(width: 1, color: Colors.black12),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(20),
-          ),
-        ),
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailPage(),
-              ),
-            );
-          },
-          child: Column(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20)),
-                  child: Image.asset(
-                    car['url'],
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                car['name'],
-                textAlign: TextAlign.center,
-                softWrap: true,
-                style: GoogleFonts.nunito(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-      );
 }

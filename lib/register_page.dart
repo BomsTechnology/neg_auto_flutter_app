@@ -4,6 +4,7 @@ import 'package:neg/main.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:neg/login_page.dart';
 import 'package:neg/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -150,7 +151,19 @@ class FormRegister extends StatefulWidget {
 }
 
 class _FormRegisterState extends State<FormRegister> {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   var _obscureText = true;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -184,6 +197,8 @@ class _FormRegisterState extends State<FormRegister> {
               ],
             ),
             child: TextField(
+              controller: nameController,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                   contentPadding: EdgeInsets.all(10), border: InputBorder.none),
             ),
@@ -215,6 +230,8 @@ class _FormRegisterState extends State<FormRegister> {
               ],
             ),
             child: TextField(
+              controller: emailController,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                   contentPadding: EdgeInsets.all(10), border: InputBorder.none),
             ),
@@ -246,6 +263,8 @@ class _FormRegisterState extends State<FormRegister> {
               ],
             ),
             child: TextField(
+              controller: passwordController,
+              textInputAction: TextInputAction.done,
               obscureText: _obscureText,
               decoration: InputDecoration(
                   contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 0),
@@ -279,18 +298,29 @@ class _FormRegisterState extends State<FormRegister> {
                 shape: const StadiumBorder(),
                 padding: const EdgeInsets.all(13),
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(),
-                  ),
-                );
-              },
+              onPressed: register,
             ),
           )
         ],
       ),
     );
+  }
+
+  Future register() async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }
