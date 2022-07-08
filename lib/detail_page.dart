@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:neg/Utils.dart';
 import 'package:neg/main.dart';
 import 'package:neg/order_page.dart';
+import 'package:neg/modal/car.dart';
 
 class DetailPage extends StatefulWidget {
-  const DetailPage({Key? key}) : super(key: key);
+  final String id;
+  const DetailPage({required this.id});
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -20,13 +24,6 @@ class _DetailPageState extends State<DetailPage>
     super.initState();
   }
 
-  final detail = [
-    {"name": "Couleur", "value": "Grise"},
-    {"name": "Boite de vitesse", "value": "Automatique"},
-    {"name": "Puissance", "value": 100},
-    {"name": "Nombre de place", "value": 5},
-    {"name": "Nombre de portiere", "value": 5},
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,23 +46,75 @@ class _DetailPageState extends State<DetailPage>
         centerTitle: true,
         elevation: 0,
       ),
-      body: Column(
+      body: FutureBuilder<Car?>(
+          future: readCar(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text("Error : ${snapshot.error}"));
+            } else if (snapshot.hasData) {
+              final car = snapshot.data;
+              return car == null
+                  ? Center(child: Text("No Car"))
+                  : buildCar(car);
+            } else {
+              return const Center(
+                  child: CircularProgressIndicator(
+                color: dBlue,
+              ));
+            }
+          }),
+    );
+  }
+
+  Future<Car?> readCar() async {
+    final docCar = FirebaseFirestore.instance.collection('cars');
+
+    final snapshot = await docCar.doc(widget.id).get();
+
+    if (snapshot.exists) {
+      return Car.fromJson(snapshot.data()!);
+    } else {
+      Utils.showSnackBar('Cette voiture n\'existe pas');
+    }
+  }
+
+  Widget buildCar(car) => Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             height: 250,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              child: Image.asset(
-                "assets/images/voitures/voiture4.jpg",
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+            decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)),
+                image: DecorationImage(
+                  image: NetworkImage(car.image),
+                  fit: BoxFit.cover,
+                )),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(20),
+                      ),
+                      color: car.state == 1 ? Colors.green : Colors.amber,
+                    ),
+                    child: Text(
+                      car.state == 1 ? "Disponible" : "Indisponible",
+                      style: GoogleFonts.nunito(color: Colors.white),
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
           Text(
-            "Toyota Tacoma",
+            car.name,
             style: GoogleFonts.nunito(
               fontWeight: FontWeight.w700,
               fontSize: 25,
@@ -76,7 +125,7 @@ class _DetailPageState extends State<DetailPage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "SUV ",
+                "${car.category['name']} ",
                 style: GoogleFonts.nunito(
                   fontWeight: FontWeight.w500,
                   fontSize: 20,
@@ -84,10 +133,10 @@ class _DetailPageState extends State<DetailPage>
               ),
               const SizedBox(
                 width: 10,
-                child: Text("-"),
+                child: Text("|"),
               ),
               Text(
-                "750000 XFA/Jour",
+                "${car.price}XFA/Jour",
                 style: GoogleFonts.nunito(
                   fontWeight: FontWeight.w500,
                   fontSize: 20,
@@ -106,10 +155,13 @@ class _DetailPageState extends State<DetailPage>
                 padding: const EdgeInsets.all(13),
               ),
               onPressed: () {
+                if (car.state != 1) return;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => OrderPage(),
+                    builder: (context) => OrderPage(
+                      id: widget.id,
+                    ),
                   ),
                 );
               },
@@ -136,7 +188,7 @@ class _DetailPageState extends State<DetailPage>
               ),
               unselectedLabelColor: Colors.black12,
               indicatorColor: dBlue,
-              tabs: [
+              tabs: const [
                 Tab(text: 'Description'),
                 Tab(text: 'Caractéristiques'),
               ],
@@ -153,7 +205,7 @@ class _DetailPageState extends State<DetailPage>
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+                        "${car.description}",
                         style: GoogleFonts.nunito(
                           fontSize: 13,
                           letterSpacing: 1,
@@ -163,57 +215,228 @@ class _DetailPageState extends State<DetailPage>
                     ),
                   ),
                   SingleChildScrollView(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                          children: detail.map((d) {
-                        return buildCaracteristique(d);
-                      }).toList()),
+                      child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Couleur :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                " ${car.features['color']}",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Air Conditionner :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                car.features['airConditionner'] ? "Oui" : "Non",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Boite de vitesse :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                " ${car.features['geatBox']}",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Nombre de place :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                " ${car.features['nbPlaces']}",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Nombre de porte :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                " ${car.features['nbDoor']}",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "Puissance :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                " ${car.features['power']} Chevaux",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                  )),
                 ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget buildCaracteristique(caracteristique) => SizedBox(
-        height: 35,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/icone/hashtag.svg',
-                  color: dBlue,
-                  width: 18,
-                  height: 18,
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  "${caracteristique['name']} :",
-                  style: GoogleFonts.nunito(
-                      fontSize: 18,
-                      letterSpacing: 1,
-                      height: 1.5,
-                      fontWeight: FontWeight.w800),
-                ),
-              ],
-            ),
-            Text(
-              " ${caracteristique['value']}",
-              style: GoogleFonts.nunito(
-                fontSize: 18,
-                letterSpacing: 1,
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
       );
 
   @override

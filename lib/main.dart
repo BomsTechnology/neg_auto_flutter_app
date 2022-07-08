@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:neg/Utils.dart';
 import 'package:neg/home_page.dart';
 import 'package:neg/login_page.dart';
 import 'package:neg/register_page.dart';
@@ -19,12 +20,16 @@ void main() async {
   runApp(const MyApp());
 }
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      scaffoldMessengerKey: Utils.messengerKey,
+      navigatorKey: navigatorKey,
       title: 'Neg Auto Services',
       debugShowCheckedModeBanner: false,
       home: WelcomePage(),
@@ -38,10 +43,10 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: dBlue,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: dBlue,
+      //   elevation: 0,
+      // ),
       backgroundColor: dBlue,
       body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
@@ -69,6 +74,8 @@ class TitleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top + 30, bottom: 10),
       margin: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

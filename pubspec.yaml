@@ -46,10 +46,28 @@ dependencies:
   cloud_firestore: ^3.1.17
   firebase_core: ^1.19.1
   firebase_auth: ^3.4.1
+  email_validator: ^2.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^2.2.4
+  flutter_launcher_icons: ^0.9.3
+
+flutter_native_splash:
+  color: "#1e90ff"
+  image: assets/images/icone/logo.png
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icone/logo.png"
+
+  # flutter_rename_app:
+  #   application_name: Neg Auto Services
+  #   dart_package_name: neg
+  #   application_id: com.example.neg
+  #   bundle_id: com.ios.neg
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

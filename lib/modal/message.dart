@@ -3,7 +3,7 @@ class Message {
   final DateTime date;
   final bool isSentByMe;
 
-  const Message({
+  Message({
     required this.text,
     required this.date,
     required this.isSentByMe,

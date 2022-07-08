@@ -86,6 +86,7 @@ class _CarSectionState extends State<CarSection> {
 
           return GridView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                final String id = document.id;
                 Map<String, dynamic> data =
                     document.data()! as Map<String, dynamic>;
                 return Container(
@@ -100,7 +101,9 @@ class _CarSectionState extends State<CarSection> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DetailPage(),
+                          builder: (context) => DetailPage(
+                            id: id,
+                          ),
                         ),
                       );
                     },

@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,7 +26,7 @@ class _HomeViewState extends State<HomeView> {
             SizedBox(height: 10),
             CategorySection(),
             SizedBox(height: 20),
-            BestCar()
+            // BestCar()
           ],
         ),
       ),
@@ -171,12 +172,9 @@ class CategorySection extends StatefulWidget {
 }
 
 class _CategorySectionState extends State<CategorySection> {
-  final List categories = [
-    {"image": 'assets/images/icone/berline.svg', 'name': "Berline"},
-    {"image": 'assets/images/icone/suv.svg', 'name': "SUV"},
-    {"image": 'assets/images/icone/electrique.svg', 'name': "Electrique"},
-    {"image": 'assets/images/icone/utilitaire.svg', 'name': "Utilitaire"},
-  ];
+  final Stream<QuerySnapshot> _categoriesStream =
+      FirebaseFirestore.instance.collection('categories').snapshots();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -206,39 +204,61 @@ class _CategorySectionState extends State<CategorySection> {
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: categories.map((category) {
-                return InkWell(
-                  onTap: () {},
-                  child: Container(
-                    height: 100,
-                    width: 120,
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: Colors.grey),
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(18),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        SvgPicture.asset(
-                          category['image'],
-                          width: 70,
-                          height: 70,
-                        ),
-                        Text(
-                          category['name'],
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _categoriesStream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text('Something went wrong',
                           style: GoogleFonts.nunito(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: dGray),
+                              fontWeight: FontWeight.w700, fontSize: 18)));
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: dBlue),
+                  );
+                }
+
+                return Row(
+                  children:
+                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                    Map<String, dynamic> data =
+                        document.data()! as Map<String, dynamic>;
+                    return InkWell(
+                      onTap: () {},
+                      child: Container(
+                        height: 100,
+                        width: 120,
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: Colors.grey),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(18),
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
+                        child: Column(
+                          children: [
+                            SvgPicture.network(
+                              data['image'],
+                              width: 70,
+                              height: 70,
+                            ),
+                            Text(
+                              data['name'],
+                              style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: dGray),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
+              },
             ),
           )
         ],

@@ -1,4 +1,5 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -126,80 +127,97 @@ class NavigationDrawer extends StatelessWidget {
     );
   }
 
-  Widget builHeader(BuildContext context) => Material(
-        color: dBlue,
-        child: InkWell(
-          onTap: () {},
-          child: Container(
-            padding: EdgeInsets.only(
-                top: 24 + MediaQuery.of(context).padding.top, bottom: 24),
-            width: double.infinity,
-            child: Column(
-              children: [
-                const FaIcon(
-                  FontAwesomeIcons.circleUser,
-                  size: 80,
-                  color: Colors.white,
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                Text(
-                  "Boms Technology",
-                  style: GoogleFonts.nunito(
+  Widget builHeader(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser!;
+    return Material(
+      color: dBlue,
+      child: InkWell(
+        onTap: () {},
+        child: Container(
+          padding: EdgeInsets.only(
+              top: 24 + MediaQuery.of(context).padding.top, bottom: 24),
+          width: double.infinity,
+          child: Column(
+            children: [
+              user.photoURL != null
+                  ? Container()
+                  : const FaIcon(
+                      FontAwesomeIcons.circleUser,
+                      size: 80,
                       color: Colors.white,
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "bomstechnology@gmail.com",
-                  style: GoogleFonts.nunito(
+                    ),
+              const SizedBox(
+                height: 12,
+              ),
+              Text(
+                user.displayName != null ? user.displayName! : '',
+                style: GoogleFonts.nunito(
                     color: Colors.white,
-                    fontSize: 13,
-                  ),
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold),
+              ),
+              Text(
+                user.email!,
+                style: GoogleFonts.nunito(
+                  color: Colors.white,
+                  fontSize: 13,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
+
   Widget builMenuItems(BuildContext context) => Container(
         padding: const EdgeInsets.all(24),
         child: Wrap(
           runSpacing: 16,
           children: [
             ListTile(
-              leading: const Icon(Icons.home_outlined),
-              title: const Text("Home"),
+              leading: const Icon(Icons.person_outline),
+              title: const Text("Mon Compte"),
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(Icons.favorite_border),
-              title: const Text("Favourites"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.workspaces_outline),
-              title: const Text("Workflow"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.update),
-              title: const Text("Updates"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.account_tree_outlined),
-              title: const Text("Plugins"),
+              leading: const Icon(Icons.notifications_outlined),
+              title: const Text("Notifications"),
               onTap: () {},
             ),
             const Divider(
               color: dGray,
             ),
             ListTile(
-              leading: const Icon(Icons.notifications_outlined),
-              title: const Text("Notifications"),
+              leading: const Icon(Icons.question_mark_rounded),
+              title: const Text("Faqs"),
               onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder),
+              title: const Text("Règles de confidentialité"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.file_copy_outlined),
+              title: const Text("A propos"),
+              onTap: () {},
+            ),
+            const Divider(
+              color: dGray,
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout_outlined),
+              title: const Text("Se Deconnecter"),
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WelcomePage(),
+                  ),
+                );
+              },
             ),
           ],
         ),
