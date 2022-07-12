@@ -39,7 +39,7 @@ class Car {
 
   Map<String, Object?> toJson() {
     return {
-      'title': name,
+      'name': name,
       'image': image,
       "price": price,
       "description": description,

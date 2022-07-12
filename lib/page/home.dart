@@ -172,8 +172,10 @@ class CategorySection extends StatefulWidget {
 }
 
 class _CategorySectionState extends State<CategorySection> {
-  final Stream<QuerySnapshot> _categoriesStream =
-      FirebaseFirestore.instance.collection('categories').snapshots();
+  final Stream<QuerySnapshot> _categoriesStream = FirebaseFirestore.instance
+      .collection('categories')
+      .where('name', isNotEqualTo: 'a')
+      .snapshots();
 
   @override
   Widget build(BuildContext context) {

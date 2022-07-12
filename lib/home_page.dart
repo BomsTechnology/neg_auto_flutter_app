@@ -46,12 +46,12 @@ class _HomePageState extends State<HomePage> {
               centerTitle: true,
               elevation: 0,
               actions: [
-                IconButton(
-                    onPressed: () {
-                      showSearch(
-                          context: context, delegate: MySearchDelegate());
-                    },
-                    icon: const Icon(Icons.search)),
+                // IconButton(
+                //   onPressed: () {
+                //     showSearch(context: context, delegate: MySearchDelegate());
+                //   },
+                //   icon: const Icon(Icons.search),
+                // ),
               ],
             ),
             body: IndexedStack(
