@@ -234,6 +234,41 @@ class _DetailPageState extends State<DetailPage>
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
+                                    "Caution :",
+                                    style: GoogleFonts.nunito(
+                                        fontSize: 18,
+                                        letterSpacing: 1,
+                                        height: 1.5,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                " ${car.caution}",
+                                style: GoogleFonts.nunito(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icone/hashtag.svg',
+                                    color: dBlue,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
                                     "Couleur :",
                                     style: GoogleFonts.nunito(
                                         fontSize: 18,

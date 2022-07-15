@@ -12,8 +12,10 @@ class CarPage extends StatefulWidget {
 }
 
 class _CarPageState extends State<CarPage> {
-  Stream<QuerySnapshot> _carsStream =
-      FirebaseFirestore.instance.collection('cars').snapshots();
+  Stream<QuerySnapshot> _carsStream = FirebaseFirestore.instance
+      .collection('cars')
+      .where('state', isEqualTo: 1)
+      .snapshots();
   final Future<QuerySnapshot> _brandsStream = FirebaseFirestore.instance
       .collection('brands')
       .orderBy("name", descending: true)
@@ -180,6 +182,7 @@ class _CarPageState extends State<CarPage> {
                             selectCategoryValue != 'all') {
                           _carsStream = FirebaseFirestore.instance
                               .collection('cars')
+                              .where('state', isEqualTo: 1)
                               .where('brand.id', isEqualTo: selectBrandValue)
                               .where('category.id',
                                   isEqualTo: selectCategoryValue)
@@ -187,17 +190,20 @@ class _CarPageState extends State<CarPage> {
                         } else if (selectBrandValue != 'all') {
                           _carsStream = FirebaseFirestore.instance
                               .collection('cars')
+                              .where('state', isEqualTo: 1)
                               .where('brand.id', isEqualTo: selectBrandValue)
                               .snapshots();
                         } else if (selectCategoryValue != 'all') {
                           _carsStream = FirebaseFirestore.instance
                               .collection('cars')
+                              .where('state', isEqualTo: 1)
                               .where('category.id',
                                   isEqualTo: selectCategoryValue)
                               .snapshots();
                         } else {
                           _carsStream = FirebaseFirestore.instance
                               .collection('cars')
+                              .where('state', isEqualTo: 1)
                               .snapshots();
                         }
                       });

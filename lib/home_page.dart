@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:neg/account_page.dart';
+import 'package:neg/faq_page.dart';
 import 'package:neg/main.dart';
 import 'package:neg/page/car.dart';
 import 'package:neg/page/home.dart';
@@ -132,7 +134,14 @@ class NavigationDrawer extends StatelessWidget {
     return Material(
       color: dBlue,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AccountPage(),
+            ),
+          );
+        },
         child: Container(
           padding: EdgeInsets.only(
               top: 24 + MediaQuery.of(context).padding.top, bottom: 24),
@@ -140,7 +149,10 @@ class NavigationDrawer extends StatelessWidget {
           child: Column(
             children: [
               user.photoURL != null
-                  ? Container()
+                  ? CircleAvatar(
+                      radius: 40.0,
+                      backgroundImage: NetworkImage("${user.photoURL}"),
+                    )
                   : const FaIcon(
                       FontAwesomeIcons.circleUser,
                       size: 80,
@@ -177,12 +189,19 @@ class NavigationDrawer extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.person_outline),
-              title: const Text("Mon Compte"),
-              onTap: () {},
+              title: Text("Mon Compte", style: GoogleFonts.nunito()),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AccountPage(),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.notifications_outlined),
-              title: const Text("Notifications"),
+              title: Text("Notifications", style: GoogleFonts.nunito()),
               onTap: () {},
             ),
             const Divider(
@@ -190,17 +209,25 @@ class NavigationDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.question_mark_rounded),
-              title: const Text("Faqs"),
-              onTap: () {},
+              title: Text("Faqs", style: GoogleFonts.nunito()),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FaqPage(),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.folder),
-              title: const Text("Règles de confidentialité"),
+              title: Text("Règles de confidentialité",
+                  style: GoogleFonts.nunito()),
               onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.file_copy_outlined),
-              title: const Text("A propos"),
+              title: Text("A propos", style: GoogleFonts.nunito()),
               onTap: () {},
             ),
             const Divider(
@@ -208,7 +235,7 @@ class NavigationDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.logout_outlined),
-              title: const Text("Se Deconnecter"),
+              title: Text("Se Deconnecter", style: GoogleFonts.nunito()),
               onTap: () {
                 FirebaseAuth.instance.signOut();
                 Navigator.push(

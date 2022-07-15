@@ -375,6 +375,18 @@ class _FormRegisterState extends State<FormRegister> {
         'photo': "",
         'state': 1,
         'type': 'customer'
+      }).then((value) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(value.id)
+            .collection("messages")
+            .add({
+          'content':
+              "Bonjour et bienvenue sur notre application ceci est le chat d'assistance c'est grace à cela que vous pourrez poser toutes vos questions et préoccupations, prendre et renseignements et bien d'autres :)",
+          'isSentByMe': false,
+          'state': true,
+          'date': Timestamp.now(),
+        });
       });
 
       navigatorKey.currentState!.popUntil((route) => route.isFirst);

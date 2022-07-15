@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:neg/category_page.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -191,14 +192,14 @@ class _CategorySectionState extends State<CategorySection> {
                 style: GoogleFonts.nunito(
                     fontSize: 20, fontWeight: FontWeight.w700, color: dGray),
               ),
-              InkWell(
-                onTap: () {},
-                child: Text(
-                  "Voir tout",
-                  style: GoogleFonts.nunito(
-                      fontSize: 16, fontWeight: FontWeight.w500, color: dGray),
-                ),
-              )
+              // InkWell(
+              //   onTap: () {},
+              //   child: Text(
+              //     "Voir tout",
+              //     style: GoogleFonts.nunito(
+              //         fontSize: 16, fontWeight: FontWeight.w500, color: dGray),
+              //   ),
+              // )
             ],
           ),
           const SizedBox(
@@ -229,7 +230,16 @@ class _CategorySectionState extends State<CategorySection> {
                     Map<String, dynamic> data =
                         document.data()! as Map<String, dynamic>;
                     return InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CategoryPage(
+                              category: document,
+                            ),
+                          ),
+                        );
+                      },
                       child: Container(
                         height: 100,
                         width: 120,
