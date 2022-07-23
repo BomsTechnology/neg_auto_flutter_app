@@ -19,30 +19,33 @@ class MessagePage extends StatefulWidget {
 class _MessagePageState extends State<MessagePage> {
   final formKey = GlobalKey<FormState>();
   final messageController = TextEditingController();
+  final user = FirebaseAuth.instance.currentUser!;
   String? userId;
+  // Stream<QuerySnapshot<Map<String, dynamic>>>? _messagesStream;
 
-  @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
+  void initState() {
     FirebaseFirestore.instance
         .collection('users')
         .where('userId', isEqualTo: user.uid)
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
-        userId = doc.id;
+        setState(() {
+          userId = doc.id;
+        });
       });
     });
-    final messagesRef = FirebaseFirestore.instance
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final _messagesStream = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection("messages")
         .orderBy("date")
-        .withConverter<Message>(
-          fromFirestore: (snapshot, _) => Message.fromJson(snapshot.data()!),
-          toFirestore: (message, _) => message.toJson(),
-        );
-    final Stream<QuerySnapshot> _messagesStream = messagesRef.snapshots();
+        .snapshots();
     return Scaffold(
       body: Column(
         children: [
@@ -77,13 +80,13 @@ class _MessagePageState extends State<MessagePage> {
 
                   if (snapshot.data?.size == 0) {
                     return Center(
-                      child: Text('Aucun Messages',
+                      child: Text('Aucun Message',
                           style: GoogleFonts.nunito(
                               fontWeight: FontWeight.w700, fontSize: 18)),
                     );
                   } else {
                     final List<QueryDocumentSnapshot<Object?>> messages =
-                        snapshot.data!.docs;
+                        snapshot.data?.docs ?? [];
                     return GroupedListView(
                       elements: messages,
                       reverse: true,

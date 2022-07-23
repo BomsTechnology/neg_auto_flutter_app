@@ -3,11 +3,15 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:neg/Utils.dart';
+import 'package:neg/google_sign_in.dart';
+// import 'package:neg/google_sign_in.dart';
 import 'package:neg/main.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:neg/login_page.dart';
 import 'package:neg/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -101,7 +105,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                final provider =
+                    Provider.of<GoogleSignInProvider>(context, listen: false);
+                provider.googleLogin();
+              },
               style: ElevatedButton.styleFrom(
                 primary: Colors.white,
                 shape: const StadiumBorder(),
@@ -347,6 +355,24 @@ class _FormRegisterState extends State<FormRegister> {
           ),
         ));
   }
+
+  // Future<UserCredential> signInWithGoogle() async {
+  //   // Trigger the authentication flow
+  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+  //   // Obtain the auth details from the request
+  //   final GoogleSignInAuthentication? googleAuth =
+  //       await googleUser?.authentication;
+
+  //   // Create a new credential
+  //   final credential = GoogleAuthProvider.credential(
+  //     accessToken: googleAuth?.accessToken,
+  //     idToken: googleAuth?.idToken,
+  //   );
+
+  //   // Once signed in, return the UserCredential
+  //   return await FirebaseAuth.instance.signInWithCredential(credential);
+  // }
 
   Future register() async {
     final isValid = formKey.currentState!.validate();

@@ -21,6 +21,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   User user = FirebaseAuth.instance.currentUser!;
   bool onEdit = false;
+  bool loading = false;
   PlatformFile? pickedFile;
   UploadTask? uploadTask;
   final formKey = GlobalKey<FormState>();
@@ -40,30 +41,27 @@ class _AccountPageState extends State<AccountPage> {
               pinned: true,
               expandedHeight: 250,
               flexibleSpace: FlexibleSpaceBar(
-                title: Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  padding: const EdgeInsets.all(3),
-                  width: double.infinity,
-                  color: Colors.black45,
-                  child: Text("${user.displayName}".toUpperCase(),
-                      style: GoogleFonts.nunito(
-                        fontWeight: FontWeight.bold,
-                      )),
-                ),
-                background: Image.network(
-                  "${user.photoURL}",
-                  fit: BoxFit.cover,
-                ),
+                background: user.photoURL == null
+                    ? Image.asset(
+                        "assets/images/icone/logo.png",
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        "${user.photoURL}",
+                        fit: BoxFit.cover,
+                      ),
               ),
               actions: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      onEdit = !onEdit;
-                    });
-                  },
-                  icon: Icon(Icons.edit_note_rounded),
-                )
+                user.photoURL == null
+                    ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            onEdit = !onEdit;
+                          });
+                        },
+                        icon: Icon(Icons.edit_note_rounded),
+                      )
+                    : Container()
               ],
             ),
           ];
@@ -75,6 +73,29 @@ class _AccountPageState extends State<AccountPage> {
 
   Widget profile() => ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () => setState(() {
+                    onEdit = !onEdit;
+                  }),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(7),
+                    primary: dBlue,
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Row(children: [
+                    Text("Editer le profil"),
+                    SizedBox(width: 5),
+                    Icon(Icons.edit_note_rounded)
+                  ]),
+                )
+              ],
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: Text(
@@ -128,8 +149,6 @@ class _AccountPageState extends State<AccountPage> {
       final result = await FilePicker.platform.pickFiles();
       if (result == null) return;
 
-      // print(DateTime.now().millisecondsSinceEpoch);
-
       setState(() {
         pickedFile = result.files.first;
       });
@@ -138,7 +157,9 @@ class _AccountPageState extends State<AccountPage> {
     Future edit() async {
       final isValid = formKey.currentState!.validate();
       if (!isValid) return;
-
+      setState(() {
+        loading = true;
+      });
       try {
         await user.updateDisplayName(nameController.text.trim());
         if (passwordontroller.text.trim() != "") {
@@ -166,6 +187,7 @@ class _AccountPageState extends State<AccountPage> {
       setState(() {
         user = FirebaseAuth.instance.currentUser!;
         onEdit = false;
+        loading = false;
       });
     }
 
@@ -320,13 +342,17 @@ class _AccountPageState extends State<AccountPage> {
                     padding: const EdgeInsets.all(13),
                   ),
                   onPressed: edit,
-                  child: Text(
-                    "Mettre à jour",
-                    style: GoogleFonts.nunito(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700),
-                  ),
+                  child: loading
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Text(
+                          "Mettre à jour",
+                          style: GoogleFonts.nunito(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700),
+                        ),
                 ),
               ),
               const SizedBox(height: 30),

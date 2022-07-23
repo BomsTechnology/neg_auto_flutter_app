@@ -66,6 +66,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '427856191522',
     projectId: 'neg-auto',
     storageBucket: 'neg-auto.appspot.com',
+    androidClientId: '427856191522-lcvr3bmknguc36n06blm04gleif6drth.apps.googleusercontent.com',
     iosClientId: '427856191522-h101kb2c0sgnjtdipu43shgvcesen89l.apps.googleusercontent.com',
     iosBundleId: 'com.example.neg',
   );
@@ -76,6 +77,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '427856191522',
     projectId: 'neg-auto',
     storageBucket: 'neg-auto.appspot.com',
+    androidClientId: '427856191522-lcvr3bmknguc36n06blm04gleif6drth.apps.googleusercontent.com',
     iosClientId: '427856191522-h101kb2c0sgnjtdipu43shgvcesen89l.apps.googleusercontent.com',
     iosBundleId: 'com.example.neg',
   );

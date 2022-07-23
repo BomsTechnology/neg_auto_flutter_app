@@ -2,10 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:neg/Utils.dart';
+import 'package:neg/google_sign_in.dart';
 import 'package:neg/home_page.dart';
 import 'package:neg/login_page.dart';
 import 'package:neg/register_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -39,15 +41,16 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      scaffoldMessengerKey: Utils.messengerKey,
-      navigatorKey: navigatorKey,
-      title: 'Neg Auto Services',
-      debugShowCheckedModeBanner: false,
-      home: WelcomePage(),
-    );
-  }
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+        create: (context) => GoogleSignInProvider(),
+        child: MaterialApp(
+          scaffoldMessengerKey: Utils.messengerKey,
+          navigatorKey: navigatorKey,
+          title: 'Neg Auto Services',
+          debugShowCheckedModeBanner: false,
+          home: WelcomePage(),
+        ),
+      );
 }
 
 class WelcomePage extends StatelessWidget {

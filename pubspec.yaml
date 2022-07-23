@@ -51,7 +51,8 @@ dependencies:
   email_validator: ^2.0.1
   firebase_storage: ^10.3.2
   firebase_messaging: ^12.0.0
-
+  google_sign_in: ^5.4.0
+  provider: ^6.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
