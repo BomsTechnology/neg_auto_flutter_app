@@ -80,9 +80,8 @@ class _InProgressCarState extends State<InProgressCar> {
   Widget build(BuildContext context) {
     final Stream<QuerySnapshot> _reservationStream = FirebaseFirestore.instance
         .collection('reservations')
-        .where('userId', isEqualTo: user.uid)
-        .where('state', isNotEqualTo: 3)
-        .snapshots();
+        .where('user.userId', isEqualTo: user.uid)
+        .where('state', whereIn: [1, 2]).snapshots();
     return Expanded(
       child: StreamBuilder<QuerySnapshot>(
           stream: _reservationStream,
@@ -138,7 +137,7 @@ class _HistoryCarState extends State<HistoryCar> {
   Widget build(BuildContext context) {
     final Stream<QuerySnapshot> _reservationStream = FirebaseFirestore.instance
         .collection('reservations')
-        .where('userId', isEqualTo: user.uid)
+        .where('user.userId', isEqualTo: user.uid)
         .where('state', isEqualTo: 3)
         .snapshots();
     return Expanded(

@@ -381,7 +381,12 @@ class _OrderPageState extends State<OrderPage> {
         FirebaseFirestore.instance.collection('reservations').add({
           'amount': ((price * _dateTimeRange.duration.inDays) + surplus),
           'car': car.toJson(),
-          'userId': user.uid,
+          'user': {
+            'userId': user.uid,
+            'name': user.displayName,
+            'photo': user.photoURL,
+            'email': user.email,
+          },
           'carId': widget.id,
           'date': DateTime.now(),
           'duration': _dateTimeRange.duration.inDays,
@@ -599,7 +604,7 @@ class _OrderPageState extends State<OrderPage> {
             ),
             const SizedBox(height: 50),
             Text(
-              "Tous les détails liées à la location #R00207 sont à consulter dans vos reservations, veillez patienter sa validation",
+              "Tous les détails liées à la location sont à consulter dans vos reservations, veillez patienter sa validation",
               style: GoogleFonts.nunito(
                 fontWeight: FontWeight.w500,
                 color: dGray,
